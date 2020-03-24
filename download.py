@@ -4,7 +4,10 @@ import re
 import requests
 
 BASE_URL = r"https://www.worldometers.info/coronavirus/country/{country}/"
-
+COUNTRIES = {
+    "netherlands": "The Netherlands",
+    "italy": "Italy",
+}
 
 def parse_data(country):
     url = BASE_URL.format(country=country)
@@ -45,16 +48,19 @@ if __name__ == "__main__":
 
     print("Downloading...")
 
-    stats = {}
+    stats = []
 
-    for country in ["netherlands", "italy"]:
-        print(f"{country}... ", end="")
+    for country_slug, country_name in COUNTRIES.items():
+        print(f"{country_name}... ", end="")
         try:
-            result = parse_data(country)
+            result = parse_data(country_slug)
         except Exception as e:
             print(f"Error: {e}")
             continue
-        stats[country] = result
+        stats.append({
+            "name": country_name,
+            "data": result,
+        })
         print("OK")
 
     with open(f"data/stats.json", "w", encoding="utf-8") as f:
