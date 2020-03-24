@@ -1,0 +1,37 @@
+name: "Update data"
+on:
+  push:
+    branches:
+      - master
+  schedule:
+    - cron:  '0 * * * *'
+
+jobs:
+  download:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout master
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.7'
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Download and merge
+        run: |
+          python download.py
+      - name: Commit files
+        run: |
+          git config --local user.email "joeri.bekker@gmail.com"
+          git config --local user.name "Joeri Bekker (via Github actions)"
+          git add data/stats.json
+          git commit -m ":chart_with_upwards_trend: Update data"
+        continue-on-error: true
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+        continue-on-error: true
