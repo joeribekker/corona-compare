@@ -1,11 +1,22 @@
 ---
 layout: page
-title: Corona cases
 ---
 
-<canvas id="chart-cases"></canvas>
+<div class="item">
+
+  <h1>Total Coronavirus cases</h1>
+  <canvas id="chart-cases"></canvas>
+
+  <form></form>
+
+</div>
+
+<p>
+  <small>Statistics gracefully obtained from <a href="https://www.worldometers.info/">worldometers</a>.</small>
+</p>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
 
 <script type="text/javascript">
   window.chartColors = {
@@ -22,22 +33,8 @@ title: Corona cases
   var chart = new Chart(ctx, {
     type: 'line',
     data: {
-      labels: ["Feb 15", "Feb 16", "Feb 17", "Feb 18", "Feb 19", "Feb 20", "Feb 21", "Feb 22", "Feb 23", "Feb 24", "Feb 25", "Feb 26", "Feb 27", "Feb 28", "Feb 29", "Mar 01", "Mar 02", "Mar 03", "Mar 04", "Mar 05", "Mar 06", "Mar 07", "Mar 08", "Mar 09", "Mar 10", "Mar 11",
-"Mar 12", "Mar 13", "Mar 14", "Mar 15", "Mar 16", "Mar 17", "Mar 18", "Mar 19", "Mar 20", "Mar 21", "Mar 22", "Mar 23"],
-      datasets: [
-        {
-          label: "Netherlands",
-          backgroundColor: window.chartColors.blue,
-          borderColor: window.chartColors.blue,
-          data: [23, 38, 82, 128, 188, 265, 321, 382, 503, 614, 804, 959, 1135, 1413, 1705, 2051, 2460, 2994, 3631, 4204, 4749]
-        },
-        {
-          label: "Italy",
-          backgroundColor: window.chartColors.red,
-          borderColor: window.chartColors.red,
-          data:  [21, 79, 157, 229, 323, 470, 655, 889, 1128, 1701, 2036, 2502, 3089, 3858, 4636, 5883, 7375, 9172, 10149, 12462, 15113, 17660, 21157, 24747, 27980, 31506, 35713, 41035, 47021, 53578, 59138, 63927]
-        }
-      ]
+      labels: [],
+      datasets: []
     },
     options: {
       responsive: true,
@@ -70,6 +67,50 @@ title: Corona cases
         }]
       }
     }
+  });
+
+  var cached_datasets = [];
+
+  $.getJSON("https://raw.githubusercontent.com/joeribekker/corona-compare/master/data/stats.json", function(data) {
+    cache = data
+
+    $.each(data, function(index, element) {
+      var colors = Object.values(window.chartColors)
+      var color = colors[index % colors.length]
+
+      // FIXME: Should be global labels?
+      if (index == 0) {
+        $.each(element.data.dates, function(index, element) {
+          chart.data.labels.push(element)
+        });
+      }
+
+      cached_datasets.push({
+        label: element.name,
+        backgroundColor: color,
+        borderColor: color,
+        data: element.data.cases,
+      })
+
+      $(".item form").append("<input type=\"checkbox\" id=\"" + element.name + "\"> <label for=\"" + element.name + "\">" + element.name + "</label>")
+    });
+
+    $("input").on("click", function(e) {
+      var el = $(this);
+      if (el.is(":checked") === false) {
+        chart.data.datasets = chart.data.datasets.filter(function(obj) {
+          return (obj.label != el.attr("id"));
+        });
+      }
+      else {
+        var dataset = cached_datasets.find(function(obj) {
+          return obj.label == el.attr("id");
+        });
+        chart.data.datasets.push(dataset);
+      }
+      chart.update();
+    });
+
   });
 
 </script>
