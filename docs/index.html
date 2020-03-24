@@ -1,0 +1,75 @@
+---
+layout: page
+title: Corona cases
+---
+
+<canvas id="chart-cases"></canvas>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.3/Chart.min.js"></script>
+
+<script type="text/javascript">
+  window.chartColors = {
+    red: 'rgb(255, 99, 132)',
+    orange: 'rgb(255, 159, 64)',
+    yellow: 'rgb(255, 205, 86)',
+    green: 'rgb(75, 192, 192)',
+    blue: 'rgb(54, 162, 235)',
+    purple: 'rgb(153, 102, 255)',
+    grey: 'rgb(201, 203, 207)'
+  };
+
+  var ctx = document.getElementById('chart-cases').getContext('2d');
+  var chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: ["Feb 15", "Feb 16", "Feb 17", "Feb 18", "Feb 19", "Feb 20", "Feb 21", "Feb 22", "Feb 23", "Feb 24", "Feb 25", "Feb 26", "Feb 27", "Feb 28", "Feb 29", "Mar 01", "Mar 02", "Mar 03", "Mar 04", "Mar 05", "Mar 06", "Mar 07", "Mar 08", "Mar 09", "Mar 10", "Mar 11",
+"Mar 12", "Mar 13", "Mar 14", "Mar 15", "Mar 16", "Mar 17", "Mar 18", "Mar 19", "Mar 20", "Mar 21", "Mar 22", "Mar 23"],
+      datasets: [
+        {
+          label: "Netherlands",
+          backgroundColor: window.chartColors.blue,
+          borderColor: window.chartColors.blue,
+          data: [23, 38, 82, 128, 188, 265, 321, 382, 503, 614, 804, 959, 1135, 1413, 1705, 2051, 2460, 2994, 3631, 4204, 4749]
+        },
+        {
+          label: "Italy",
+          backgroundColor: window.chartColors.red,
+          borderColor: window.chartColors.red,
+          data:  [21, 79, 157, 229, 323, 470, 655, 889, 1128, 1701, 2036, 2502, 3089, 3858, 4636, 5883, 7375, 9172, 10149, 12462, 15113, 17660, 21157, 24747, 27980, 31506, 35713, 41035, 47021, 53578, 59138, 63927]
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      title: {
+        display: true,
+        text: 'Corona cases'
+      },
+      tooltips: {
+        mode: 'index',
+        intersect: false,
+      },
+      hover: {
+        mode: 'nearest',
+        intersect: true
+      },
+      scales: {
+        xAxes: [{
+          display: true,
+          scaleLabel: {
+            display: true,
+            labelString: 'Date'
+          }
+        }],
+        yAxes: [{
+          display: true,
+          scaleLabel: {
+            display: true,
+            labelString: 'Cases'
+          }
+        }]
+      }
+    }
+  });
+
+</script>
