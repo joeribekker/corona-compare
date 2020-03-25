@@ -7,6 +7,9 @@ BASE_URL = r"https://www.worldometers.info/coronavirus/country/{country}/"
 COUNTRIES = {
     "netherlands": "The Netherlands",
     "italy": "Italy",
+    "germany": "Germany",
+    "belgium": "Belgium",
+    "france": "France",
 }
 
 def parse_data(country):
