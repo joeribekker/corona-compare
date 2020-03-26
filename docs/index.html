@@ -31,9 +31,8 @@
       </div>
 
       <p></p>
-    
-      <h2>Total Coronavirus cases</h1>
-      <canvas id="chart-cases"></canvas>
+
+      <div id="chart-container"></div>
       
     </div>
   </main>
@@ -46,9 +45,14 @@
 
   <script id="country-options-template" type="x-tmpl-mustache">
     <div class="form-check form-check-inline">
-      <input class="form-check-input" type="checkbox" id="{{ country }}" value="option1">
-      <label class="form-check-label" for="{{ country }}">{{ country }}</label>
+      <input class="form-check-input" type="checkbox" id="{{ countryId }}">
+      <label class="form-check-label" for="{{ countryId }}">{{ countryName }}</label>
     </div>
+  </script>
+
+  <script id="chart-template" type="x-tmpl-mustache">
+    <h2>{{ chartName }}</h2>
+    <canvas class="chart" id="chart-{{ chartId }}"></canvas>
   </script>
 
   <script src="https://code.jquery.com/jquery-3.4.1.min.js" integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo=" crossorigin="anonymous"></script>

@@ -8,18 +8,15 @@ window.chartColors = {
     grey: 'rgb(201, 203, 207)'
 };
 
-var ctx = document.getElementById('chart-cases').getContext('2d');
-var chart = new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: [],
-        datasets: []
-    },
-    options: {
+var countryOptionsTempate = $("#country-options-template").html();
+var chartTemplate = $("#chart-template").html();
+
+var chartOptions = function(name) {
+    return {
         responsive: true,
         title: {
             display: true,
-            text: 'Corona cases'
+            text: name
         },
         tooltips: {
             mode: 'index',
@@ -41,55 +38,95 @@ var chart = new Chart(ctx, {
                 display: true,
                 scaleLabel: {
                     display: true,
-                    labelString: 'Cases'
+                    labelString: name
                 }
             }]
         }
     }
-});
+};
 
-var countryOptionsTempate = $("#country-options-template").html();
+var cachedDatasets = {};
 
-var cachedDatasets = [];
+// $.getJSON("https://raw.githubusercontent.com/joeribekker/corona-compare/master/data/stats.json", function(data) {
+$.getJSON("/assets/stats.json", function(data) {
 
-$.getJSON("https://raw.githubusercontent.com/joeribekker/corona-compare/master/data/stats.json", function(data) {
-    cache = data
-
-    $.each(data, function(index, element) {
-        var colors = Object.values(window.chartColors)
-        var color = colors[index % colors.length]
-
-        // FIXME: Should be global labels?
-        if (index == 0) {
-            $.each(element.data.dates, function(index, element) {
-                chart.data.labels.push(element)
-            });
-        }
-
-        cachedDatasets.push({
-            label: element.name,
-            borderColor: color,
-            data: element.data.cases,
-        })
-
-        html = Mustache.render(countryOptionsTempate, {'chart': 'cases', 'country': element.name});
+    // Create country selection
+    $.each(data.countries, function(countryId, countryName) {
+        var html = Mustache.render(countryOptionsTempate, {'countryId': countryId, 'countryName': countryName});
         $("form").append(html)
     });
 
+    // Create chart elements
+    $.each(data.charts, function(chartId, chartName) {
+        var html = Mustache.render(chartTemplate, {'chartId': chartId, 'chartName': chartName});
+        $("#chart-container").append(html)
+
+        var ctx = document.getElementById("chart-" + chartId).getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: []
+            },
+            options: chartOptions(chartName)
+        })
+
+        window.charts = window.charts || {};
+        window.charts[chartId] = chart
+
+        // Initialize cachedDatasets with chart types
+        cachedDatasets[chartId] = [];
+    });
+
+    var colors = Object.values(window.chartColors)
+
+    // Add data to charts
+    $.each(data.datasets, function(index, dataset) {
+        var countryId = dataset.country;
+        var color = colors[index % colors.length];
+
+        $.each(dataset.data, function(index, data) {
+            // FIXME: Should be global labels?
+            $.each(window.charts, function(chartId, chart) {
+                if (chart.data.labels.length == 0) {
+                    $.each(data.dates, function(index, date) {
+                        chart.data.labels.push(date);
+                    });
+                }
+            });
+
+            var chartId = data.chart;
+            cachedDatasets[chartId].push({
+                label: countryId,
+                borderColor: color,
+                data: data.values,
+            });
+        });
+
+    });
+
+    // Update datasets on chart when country selections changes
     $("input").on("click", function(e) {
         var el = $(this);
         if (el.is(":checked") === false) {
-            chart.data.datasets = chart.data.datasets.filter(function(obj) {
-                return (obj.label != el.attr("id"));
+
+            $.each(window.charts, function(chartId, chart) {
+                chart.data.datasets = chart.data.datasets.filter(function(obj) {
+                    return (obj.label != el.attr("id"));
+                });
+                chart.update();
             });
+
         }
         else {
-            var dataset = cachedDatasets.find(function(obj) {
-                return obj.label == el.attr("id");
+            $.each(window.charts, function(chartId, chart) {
+                var dataset = cachedDatasets[chartId].find(function(obj) {
+                    return obj.label == el.attr("id");
+                });
+                chart.data.datasets.push(dataset);
+                chart.update();
             });
-            chart.data.datasets.push(dataset);
         }
-        chart.update();
     });
 
 });
