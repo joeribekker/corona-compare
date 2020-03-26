@@ -14,10 +14,7 @@ var chartTemplate = $("#chart-template").html();
 var chartOptions = function(name) {
     return {
         responsive: true,
-        title: {
-            display: true,
-            text: name
-        },
+        aspectRatio: 1.75,
         tooltips: {
             mode: 'index',
             intersect: false,
