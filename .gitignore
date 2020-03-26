@@ -1,2 +1,5 @@
 .vscode/
 env/
+docs/_site
+docs/Gemfile
+docs/Gemfile.lock
