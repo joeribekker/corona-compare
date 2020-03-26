@@ -47,8 +47,7 @@ var chartOptions = function(name) {
 
 var cachedDatasets = {};
 
-// $.getJSON("https://raw.githubusercontent.com/joeribekker/corona-compare/master/data/stats.json", function(data) {
-$.getJSON("/assets/stats.json", function(data) {
+$.getJSON("https://raw.githubusercontent.com/joeribekker/corona-compare/master/data/stats.json", function(data) {
 
     // Create country selection
     $.each(data.countries, function(countryId, countryName) {
